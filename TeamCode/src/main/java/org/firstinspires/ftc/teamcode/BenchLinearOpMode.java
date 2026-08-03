@@ -2,6 +2,7 @@
 package org.firstinspires.ftc.teamcode;
 
 //import com.qualcomm.robotcore.eventloop.opmode.Disabled;
+import com.qualcomm.hardware.dfrobot.HuskyLens;
 import com.qualcomm.hardware.rev.RevHubOrientationOnRobot;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
@@ -50,6 +51,7 @@ public class BenchLinearOpMode extends LinearOpMode {
     private Servo servo6arm;
     private IMU imu;
     private YawPitchRollAngles imuOrientation;
+    private HuskyLens huskyLens;
 
     @Override
     public void runOpMode() {
@@ -77,6 +79,22 @@ public class BenchLinearOpMode extends LinearOpMode {
         // Now initialize the IMU with this mounting orientation
         // Note: if you choose two conflicting directions, this initialization will cause a code exception.
         imu.initialize(new IMU.Parameters(orientationOnRobot));
+
+        huskyLens = hardwareMap.get(HuskyLens.class, "huskylens");
+        /*
+         * Basic check to see if the huskyLens is alive and communicating.  This is not
+         * technically necessary here as the HuskyLens class does this in its
+         * doInitialization() method which is called when the device is pulled out of
+         * the hardware map.  However, sometimes it's unclear why a device reports as
+         * failing on initialization.  In the case of this device, it's because the
+         * call to knock() failed.
+         */
+        if (!huskyLens.knock()) {
+            telemetry.addData(">>", "Problem communicating with " + huskyLens.getDeviceName());
+        } else {
+            telemetry.addData(">>", "Press start to continue");
+        }
+        huskyLens.selectAlgorithm(HuskyLens.Algorithm.TAG_RECOGNITION);
 
         telemetry.addData("Status", "Initialized");
         telemetry.update();
@@ -133,6 +151,30 @@ public class BenchLinearOpMode extends LinearOpMode {
             }
             // Retrieve Rotational Angles and Velocities
             imuOrientation = imu.getRobotYawPitchRollAngles();
+
+            /*
+             * All algorithms, except for LINE_TRACKING, return a list of Blocks where a
+             * Block represents the outline of a recognized object along with its ID number.
+             * ID numbers allow you to identify what the device saw.  See the HuskyLens documentation
+             * referenced in the header comment above for more information on IDs and how to
+             * assign them to objects.
+             *
+             * Returns an empty array if no objects are seen.
+             */
+            HuskyLens.Block[] blocks = huskyLens.blocks();
+            telemetry.addData("Block count", blocks.length);
+            for (int i = 0; i < blocks.length; i++) {
+                telemetry.addData("Block", blocks[i].toString());
+                /*
+                 * Here inside the FOR loop, you could save or evaluate specific info for the currently recognized Bounding Box:
+                 * - blocks[i].width and blocks[i].height   (size of box, in pixels)
+                 * - blocks[i].left and blocks[i].top       (edges of box)
+                 * - blocks[i].x and blocks[i].y            (center location)
+                 * - blocks[i].id                           (Color ID)
+                 *
+                 * These values have Java type int (integer).
+                 */
+            }
 
             // Show the elapsed game time.
             telemetry.addData("Status", "Run Time " + runtime.toString());
