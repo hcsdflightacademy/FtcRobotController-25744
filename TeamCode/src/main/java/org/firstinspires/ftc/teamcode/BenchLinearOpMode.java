@@ -2,16 +2,20 @@
 package org.firstinspires.ftc.teamcode;
 
 //import com.qualcomm.robotcore.eventloop.opmode.Disabled;
+import com.qualcomm.hardware.rev.RevHubOrientationOnRobot;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.DcMotor;
 //import com.qualcomm.robotcore.hardware.DigitalChannel;
 import com.qualcomm.hardware.rev.RevTouchSensor;
 import com.qualcomm.hardware.rev.RevColorSensorV3;
+import com.qualcomm.robotcore.hardware.IMU;
 import com.qualcomm.robotcore.hardware.Servo;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
+import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
 import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
+import org.firstinspires.ftc.robotcore.external.navigation.YawPitchRollAngles;
 
 /*
  * This file contains a minimal example of a Linear "OpMode". An OpMode is a 'program' that runs in either
@@ -44,6 +48,8 @@ public class BenchLinearOpMode extends LinearOpMode {
     private double kServo2PositionONE = 0.3;
     private double kServo2PositionTWO = 0.55;
     private Servo servo6arm;
+    private IMU imu;
+    private YawPitchRollAngles imuOrientation;
 
     @Override
     public void runOpMode() {
@@ -59,6 +65,18 @@ public class BenchLinearOpMode extends LinearOpMode {
         servo2arm = hardwareMap.get(Servo.class, "servo2arm");
         servo6arm = hardwareMap.get(Servo.class, "servo6arm");
 
+        imu = hardwareMap.get(IMU.class, "imu");
+        /* Define how the hub is mounted on the robot to get the correct Yaw, Pitch and Roll values.
+         * Two input parameters are required to fully specify the Orientation.
+         * The first parameter specifies the direction the printed logo on the Hub is pointing.
+         * The second parameter specifies the direction the USB connector on the Hub is pointing.
+         * All directions are relative to the robot, and left/right is as-viewed from behind the robot.
+         */
+        RevHubOrientationOnRobot orientationOnRobot = new RevHubOrientationOnRobot(RevHubOrientationOnRobot.LogoFacingDirection.UP,
+                                                                        RevHubOrientationOnRobot.UsbFacingDirection.FORWARD);
+        // Now initialize the IMU with this mounting orientation
+        // Note: if you choose two conflicting directions, this initialization will cause a code exception.
+        imu.initialize(new IMU.Parameters(orientationOnRobot));
 
         telemetry.addData("Status", "Initialized");
         telemetry.update();
@@ -106,8 +124,21 @@ public class BenchLinearOpMode extends LinearOpMode {
                 telemetry.addData("Button ", "NOT PRESSED");
             }
 
+            // Check to see if heading reset is requested
+            if (gamepad1.back) {
+                telemetry.addData("Yaw", "Resetting");
+                imu.resetYaw();
+            } else {
+                telemetry.addData("Yaw", "Press BACK on Gamepad to reset IMU");
+            }
+            // Retrieve Rotational Angles and Velocities
+            imuOrientation = imu.getRobotYawPitchRollAngles();
+
             // Show the elapsed game time.
             telemetry.addData("Status", "Run Time " + runtime.toString());
+            telemetry.addData("Yaw/Heading (Z)", "%.1f Deg", imuOrientation.getYaw(AngleUnit.DEGREES));
+            telemetry.addData("Pitch (X)", "%.1f Deg", imuOrientation.getPitch(AngleUnit.DEGREES));
+            telemetry.addData("Roll (Y)", "%.1f Deg", imuOrientation.getRoll(AngleUnit.DEGREES));
             telemetry.addData("benchMotor target power", tgtPower);
             telemetry.addData("benchMotor actual power", benchMotor.getPower());
             telemetry.addData("V3 distance (cm)",  sensorV3.getDistance(DistanceUnit.CM));
