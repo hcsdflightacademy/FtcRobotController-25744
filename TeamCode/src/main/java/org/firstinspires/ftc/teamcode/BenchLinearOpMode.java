@@ -37,6 +37,12 @@ public class BenchLinearOpMode extends LinearOpMode {
     private RevTouchSensor digitalTouch;
     private RevColorSensorV3 sensorV3;
     private Servo servo2arm;
+    enum SERVO2POS {
+        ONE, TWO, UNKNOWN
+    }
+    private SERVO2POS servo2Position = SERVO2POS.UNKNOWN;
+    private double kServo2PositionONE = 0.3;
+    private double kServo2PositionTWO = 0.55;
     private Servo servo6arm;
 
     @Override
@@ -68,10 +74,21 @@ public class BenchLinearOpMode extends LinearOpMode {
 
             if (gamepad1.a){
                 servo2arm.setPosition(0.0);
-            } else if (gamepad1.b || gamepad1.x){
+                servo2Position = SERVO2POS.UNKNOWN;
+            } else if (gamepad1.b){
                 servo2arm.setPosition(0.5);
+                servo2Position = SERVO2POS.UNKNOWN;
             } else if (gamepad1.y){
                 servo2arm.setPosition(1.0);
+                servo2Position = SERVO2POS.UNKNOWN;
+            } else if (gamepad1.x){
+                if (servo2Position == SERVO2POS.UNKNOWN || servo2Position == SERVO2POS.ONE){
+                    servo2Position = SERVO2POS.TWO;
+                    servo2arm.setPosition(kServo2PositionTWO);
+                } else { // servo2Postition == SERVO2POS.TWO
+                    servo2Position = SERVO2POS.ONE;
+                    servo2arm.setPosition(kServo2PositionONE);
+                }
             }
 
             if (gamepad1.left_bumper){
@@ -90,15 +107,16 @@ public class BenchLinearOpMode extends LinearOpMode {
             }
 
             // Show the elapsed game time.
-            telemetry.addData("Status", "Run Time: " + runtime.toString());
-            telemetry.addData("target benchMotor power: ", tgtPower);
-            telemetry.addData("benchMotor power: ", benchMotor.getPower());
-            telemetry.addData("distance (cm): ",  sensorV3.getDistance(DistanceUnit.CM));
-            telemetry.addData("V3 red: ", sensorV3.getNormalizedColors().red);
-            telemetry.addData("V3 green: ", sensorV3.getNormalizedColors().green);
-            telemetry.addData("V3 blue: ", sensorV3.getNormalizedColors().blue);
-            telemetry.addData("servo2arm position: ", servo2arm.getPosition());
-            telemetry.addData("servo6arm position: ", servo6arm.getPosition());
+            telemetry.addData("Status", "Run Time " + runtime.toString());
+            telemetry.addData("benchMotor target power", tgtPower);
+            telemetry.addData("benchMotor actual power", benchMotor.getPower());
+            telemetry.addData("V3 distance (cm)",  sensorV3.getDistance(DistanceUnit.CM));
+            telemetry.addData("V3 color (nRGB)", "%.4f %.4f %.4f",
+                    sensorV3.getNormalizedColors().red,
+                    sensorV3.getNormalizedColors().green,
+                    sensorV3.getNormalizedColors().blue);
+            telemetry.addData("servo2arm position", servo2arm.getPosition() + " " + servo2Position);
+            telemetry.addData("servo6arm position", servo6arm.getPosition());
             telemetry.update();
         }
     }
