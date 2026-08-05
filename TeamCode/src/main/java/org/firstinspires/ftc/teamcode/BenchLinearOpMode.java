@@ -52,6 +52,11 @@ public class BenchLinearOpMode extends LinearOpMode {
     private IMU imu;
     private YawPitchRollAngles imuOrientation;
     private HuskyLens huskyLens;
+    private Servo rgbLight;
+    final double kRED_PWM = 0.28;
+    final double kGREEN_PWM = 0.5;
+    final double kBLUE_PWM = 0.611;
+    final double kWHITE_PWM = 1.0;
 
     @Override
     public void runOpMode() {
@@ -66,6 +71,9 @@ public class BenchLinearOpMode extends LinearOpMode {
 
         servo2arm = hardwareMap.get(Servo.class, "servo2arm");
         servo6arm = hardwareMap.get(Servo.class, "servo6arm");
+
+        rgbLight = hardwareMap.get(Servo.class, "rgbLight");
+        rgbLight.setPosition(kWHITE_PWM); // set color to white
 
         imu = hardwareMap.get(IMU.class, "imu");
         /* Define how the hub is mounted on the robot to get the correct Yaw, Pitch and Roll values.
@@ -105,6 +113,9 @@ public class BenchLinearOpMode extends LinearOpMode {
 
         // run until the end of the match (driver presses STOP)
         while (opModeIsActive()) {
+            // Show the elapsed game time.
+            telemetry.addData("Status", "Run Time " + runtime.toString());
+
             tgtPower = this.gamepad1.left_stick_y;
             benchMotor.setPower(tgtPower);
 
@@ -117,7 +128,7 @@ public class BenchLinearOpMode extends LinearOpMode {
             } else if (gamepad1.y){
                 servo2arm.setPosition(1.0);
                 servo2Position = SERVO2POS.UNKNOWN;
-            } else if (gamepad1.x){
+            } else if (gamepad1.xWasPressed()){
                 if (servo2Position == SERVO2POS.UNKNOWN || servo2Position == SERVO2POS.ONE){
                     servo2Position = SERVO2POS.TWO;
                     servo2arm.setPosition(kServo2PositionTWO);
@@ -127,19 +138,33 @@ public class BenchLinearOpMode extends LinearOpMode {
                 }
             }
 
-            if (gamepad1.left_bumper){
-                servo6arm.setPosition(0.0);
-            } else if (gamepad1.right_bumper){
-                servo6arm.setPosition(1.0);
+            if (gamepad1.left_trigger_pressed){
+                //servo6arm.setPosition(0.0);
+                servo6arm.setPosition(0.5 - gamepad1.left_trigger/2.0);
+            } else if (gamepad1.right_trigger_pressed){
+                //servo6arm.setPosition(1.0);
+                servo6arm.setPosition(0.5 + gamepad1.right_trigger/2.0);
             } else {
                 servo6arm.setPosition(0.5);
             }
 
+            // determine if R, G, or B is strongest detected color by REVColorSensorV3
+            // and set rgbLight to that color when digitalTouch is pressed
+
             //if (!digitalTouch.getState()){
             if (digitalTouch.isPressed()){
                 telemetry.addData("Button ", "PRESSED");
+                if (sensorV3.getNormalizedColors().red > sensorV3.getNormalizedColors().green &&
+                    sensorV3.getNormalizedColors().red > sensorV3.getNormalizedColors().blue) {
+                    rgbLight.setPosition(kRED_PWM);
+                } else if (sensorV3.getNormalizedColors().green > sensorV3.getNormalizedColors().blue) {
+                    rgbLight.setPosition(kGREEN_PWM);
+                } else {
+                    rgbLight.setPosition(kBLUE_PWM);
+                }
             } else {
                 telemetry.addData("Button ", "NOT PRESSED");
+                rgbLight.setPosition(kWHITE_PWM); // set color to white
             }
 
             // Check to see if heading reset is requested
@@ -176,13 +201,11 @@ public class BenchLinearOpMode extends LinearOpMode {
                  */
             }
 
-            // Show the elapsed game time.
-            telemetry.addData("Status", "Run Time " + runtime.toString());
-            telemetry.addData("Yaw/Heading (Z)", "%.1f Deg", imuOrientation.getYaw(AngleUnit.DEGREES));
-            telemetry.addData("Pitch (X)", "%.1f Deg", imuOrientation.getPitch(AngleUnit.DEGREES));
-            telemetry.addData("Roll (Y)", "%.1f Deg", imuOrientation.getRoll(AngleUnit.DEGREES));
-            telemetry.addData("benchMotor target power", tgtPower);
-            telemetry.addData("benchMotor actual power", benchMotor.getPower());
+            telemetry.addData("imu YPR (deg)", "%.1f %.1f %.1f",
+                    imuOrientation.getYaw(AngleUnit.DEGREES),
+                    imuOrientation.getPitch(AngleUnit.DEGREES),
+                    imuOrientation.getRoll(AngleUnit.DEGREES));
+            telemetry.addData("motor target & actual pwr", "%.2f %.2f", tgtPower, benchMotor.getPower());
             telemetry.addData("V3 distance (cm)",  sensorV3.getDistance(DistanceUnit.CM));
             telemetry.addData("V3 color (nRGB)", "%.4f %.4f %.4f",
                     sensorV3.getNormalizedColors().red,
