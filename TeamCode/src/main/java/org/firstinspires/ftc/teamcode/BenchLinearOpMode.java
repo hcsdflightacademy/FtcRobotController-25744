@@ -52,7 +52,7 @@ public class BenchLinearOpMode extends LinearOpMode {
     private IMU imu;
     private YawPitchRollAngles imuOrientation;
     private HuskyLens huskyLens;
-    private Servo rgbLight;
+    private Servo rgbLight; // more info at https://www.gobilda.com/rgb-indicator-light-pwm-controlled/
     final double kRED_PWM = 0.28;
     final double kGREEN_PWM = 0.5;
     final double kBLUE_PWM = 0.611;
