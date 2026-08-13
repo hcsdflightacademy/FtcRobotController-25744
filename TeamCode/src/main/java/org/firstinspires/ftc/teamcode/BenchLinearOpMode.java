@@ -5,6 +5,8 @@ import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.DcMotor;
+import com.qualcomm.robotcore.hardware.DigitalChannel;
+import com.qualcomm.robotcore.hardware.Servo;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
 /*
@@ -21,11 +23,16 @@ public class BenchLinearOpMode extends LinearOpMode {
     // Declare OpMode members.
     private ElapsedTime runtime = new ElapsedTime();
     private DcMotor benchMotor;
-
+    private Servo servo2arm;
+    private Servo servo4arm;
+    private DigitalChannel button1;
     @Override
     public void runOpMode() {
-        benchMotor = hardwareMap.get(DcMotor.class, "motor");
+        benchMotor = hardwareMap.get(DcMotor.class, "motor 1");
         double tgtPower = 0;
+        servo2arm = hardwareMap.get(Servo.class,"2arms");
+        servo4arm = hardwareMap.get(Servo.class, "4arms");
+        button1 = hardwareMap.get(DigitalChannel.class, "button");
 
         telemetry.addData("Status", "Initialized");
         telemetry.update();
@@ -37,13 +44,36 @@ public class BenchLinearOpMode extends LinearOpMode {
         // run until the end of the match (driver presses STOP)
         while (opModeIsActive()) {
             tgtPower = gamepad1.left_stick_y;
-            benchMotor.setPower(tgtPower);
+            //benchMotor.setPower(tgtPower);
+            if (gamepad1.a){
+                servo2arm.setPosition(0.0);
+            }else if (gamepad1.b) {
+                servo2arm.setPosition(0.5);
+            }
+            if(gamepad1.right_trigger_pressed) {
+                servo4arm.setPosition(0.0);
+            }else if (gamepad1.left_trigger_pressed) {
+                servo4arm.setPosition(0.5);
+            }
+            if (button1.getState()) {
+                telemetry.addData("button1", "not pressed");
+                benchMotor.setPower(tgtPower);
+            }else {
+                telemetry.addData("button1", "pressed");
+                benchMotor.setPower(0);
+            }
 
             // Show the elapsed game time.
             telemetry.addData("Status", "Run Time: " + runtime.toString());
             telemetry.addData("benchMotor target power: ", tgtPower);
             telemetry.addData("benchMotor actual power: ", benchMotor.getPower());
+            telemetry.addData("Servo2arm position", servo2arm.getPosition());
+            telemetry.addData("Servo4arm position", servo4arm.getPosition());
             telemetry.update();
+
+
+
+
         }
     }
 }
