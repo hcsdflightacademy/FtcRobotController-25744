@@ -1,6 +1,7 @@
 
 package org.firstinspires.ftc.teamcode;
 
+import com.qualcomm.hardware.rev.Rev2mDistanceSensor;
 import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
@@ -8,6 +9,8 @@ import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DigitalChannel;
 import com.qualcomm.robotcore.hardware.Servo;
 import com.qualcomm.robotcore.util.ElapsedTime;
+
+import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
 
 /*
  * This file contains a minimal example of a Linear "OpMode". An OpMode is a 'program' that runs in either
@@ -26,6 +29,8 @@ public class BenchLinearOpMode extends LinearOpMode {
     private Servo servo2arm;
     private Servo servo4arm;
     private DigitalChannel button1;
+    private Rev2mDistanceSensor distanceSensor;
+    private double distance;
     @Override
     public void runOpMode() {
         benchMotor = hardwareMap.get(DcMotor.class, "motor 1");
@@ -33,6 +38,7 @@ public class BenchLinearOpMode extends LinearOpMode {
         servo2arm = hardwareMap.get(Servo.class,"2arms");
         servo4arm = hardwareMap.get(Servo.class, "4arms");
         button1 = hardwareMap.get(DigitalChannel.class, "button");
+        distanceSensor = hardwareMap.get(Rev2mDistanceSensor.class, "distance");
 
         telemetry.addData("Status", "Initialized");
         telemetry.update();
@@ -58,10 +64,16 @@ public class BenchLinearOpMode extends LinearOpMode {
             if (button1.getState()) {
                 telemetry.addData("button1", "not pressed");
                 benchMotor.setPower(tgtPower);
-            }else {
-                telemetry.addData("button1", "pressed");
+            }else if (tgtPower > 0.0) { //Move backwards
+                telemetry.addData("tgtPower", "more than 0");
+                benchMotor.setPower(tgtPower);
+            }else if (tgtPower < 0.0){ //Stop
+                telemetry.addData("tgtPower", "less than 0");
                 benchMotor.setPower(0);
             }
+            distance = distanceSensor.getDistance(DistanceUnit.CM);
+
+
 
             // Show the elapsed game time.
             telemetry.addData("Status", "Run Time: " + runtime.toString());
@@ -69,6 +81,7 @@ public class BenchLinearOpMode extends LinearOpMode {
             telemetry.addData("benchMotor actual power: ", benchMotor.getPower());
             telemetry.addData("Servo2arm position", servo2arm.getPosition());
             telemetry.addData("Servo4arm position", servo4arm.getPosition());
+            telemetry.addData("Distance (cm):", distance);
             telemetry.update();
 
 
