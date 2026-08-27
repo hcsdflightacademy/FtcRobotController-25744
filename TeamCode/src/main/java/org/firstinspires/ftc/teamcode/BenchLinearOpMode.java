@@ -30,6 +30,7 @@ public class BenchLinearOpMode extends LinearOpMode {
     private Servo servo6arm;
     private RevColorSensorV3 sensorV3;
     private RevTouchSensor button;
+    private Servo rgbLight;
 
 
     @Override
@@ -39,6 +40,7 @@ public class BenchLinearOpMode extends LinearOpMode {
         servo6arm = hardwareMap.get(Servo.class, "servo6arm");
         sensorV3 = hardwareMap.get(RevColorSensorV3.class, "sensorColorV3");
         button = hardwareMap.get(RevTouchSensor.class,"button");
+        rgbLight = hardwareMap.get(Servo.class,"rgbLight");
         double tgtPower = 0;
         double jeff = 0;
 
@@ -52,7 +54,6 @@ public class BenchLinearOpMode extends LinearOpMode {
         // run until the end of the match (driver presses STOP)
         while (opModeIsActive()) {
             tgtPower = gamepad1.left_stick_y;
-            benchMotor.setPower(tgtPower);
 
             if(gamepad1.left_trigger_pressed) {
                 servo2arm.setPosition(0.5);
@@ -71,9 +72,23 @@ public class BenchLinearOpMode extends LinearOpMode {
 
             sensorV3.getDistance(DistanceUnit.CM);
 
-            //if(button.isPressed()){
-            //
-            //}
+            if(button.isPressed() && tgtPower<0) {
+                benchMotor.setPower(0);
+            }
+            else {
+                benchMotor.setPower(tgtPower);
+            }
+
+
+            if(button.isPressed()) {
+                rgbLight.setPosition(.288);
+            }
+            else if(gamepad1.right_stick_x>0) {
+                rgbLight.setPosition(gamepad1.right_stick_x);
+            }
+            else {
+                rgbLight.setPosition(0);
+            }
 
             // Show the elapsed game time.
             telemetry.addData("Status", "Run Time: " + runtime.toString());
@@ -83,6 +98,7 @@ public class BenchLinearOpMode extends LinearOpMode {
             telemetry.addData("servo6arm speed: ", servo6arm.getPosition());
             telemetry.addData("sensorV3 object distance: ", sensorV3.getDistance (DistanceUnit.CM));
             telemetry.addData("button touched: ", button.getValue());
+            telemetry.addData("rgb indicator color", rgbLight.getPosition());
             telemetry.update();
         }
     }
