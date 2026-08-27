@@ -24,22 +24,24 @@ import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
 public class BenchLinearOpMode extends LinearOpMode {
 
     // Declare OpMode members.
-    private ElapsedTime runtime = new ElapsedTime();
+    private final ElapsedTime runtime = new ElapsedTime();
     private DcMotor benchMotor;
     private Servo servo2arm;
     private Servo servo4arm;
     private DigitalChannel button1;
     private Rev2mDistanceSensor distanceSensor;
     private double distance;
+
+    private DigitalChannel magnetism;
     @Override
     public void runOpMode() {
         benchMotor = hardwareMap.get(DcMotor.class, "motor 1");
         double tgtPower = 0;
-        servo2arm = hardwareMap.get(Servo.class,"2arms");
+        servo2arm = hardwareMap.get(Servo.class, "2arms");
         servo4arm = hardwareMap.get(Servo.class, "4arms");
         button1 = hardwareMap.get(DigitalChannel.class, "button");
         distanceSensor = hardwareMap.get(Rev2mDistanceSensor.class, "distance");
-
+        magnetism = hardwareMap.get(DigitalChannel.class, "magnetism");
         telemetry.addData("Status", "Initialized");
         telemetry.update();
 
@@ -51,29 +53,37 @@ public class BenchLinearOpMode extends LinearOpMode {
         while (opModeIsActive()) {
             tgtPower = gamepad1.left_stick_y;
             //benchMotor.setPower(tgtPower);
-            if (gamepad1.a){
+            if (gamepad1.a) {
                 servo2arm.setPosition(0.0);
-            }else if (gamepad1.b) {
+            } else if (gamepad1.b) {
                 servo2arm.setPosition(0.5);
             }
-            if(gamepad1.right_trigger_pressed) {
+            if (gamepad1.right_trigger_pressed) {
                 servo4arm.setPosition(0.0);
-            }else if (gamepad1.left_trigger_pressed) {
+            } else if (gamepad1.left_trigger_pressed) {
                 servo4arm.setPosition(0.5);
             }
-            if (button1.getState()) {
-                telemetry.addData("button1", "not pressed");
+//            if (button1.getState()) {
+//                telemetry.addData("button1", "not pressed");
+//                benchMotor.setPower(tgtPower);
+//            } else if (tgtPower > 0.0) { //Move backwards
+//                telemetry.addData("tgtPower", "more than 0");
+//                benchMotor.setPower(tgtPower);
+//            } else if (tgtPower < 0.0) { //Stop
+//                telemetry.addData("tgtPower", "less than 0");
+//                benchMotor.setPower(0);
+//            }
+
+            if (magnetism.getState()){
+                telemetry.addData("magnetism", "magnet not found");
                 benchMotor.setPower(tgtPower);
-            }else if (tgtPower > 0.0) { //Move backwards
-                telemetry.addData("tgtPower", "more than 0");
-                benchMotor.setPower(tgtPower);
-            }else if (tgtPower < 0.0){ //Stop
-                telemetry.addData("tgtPower", "less than 0");
+            } else if(tgtPower < 0.0) {
+                telemetry.addData("magnetism", "magnet found");
                 benchMotor.setPower(0);
+            }else if (tgtPower > 0.0){
+                benchMotor.setPower(tgtPower);
             }
             distance = distanceSensor.getDistance(DistanceUnit.CM);
-
-
 
             // Show the elapsed game time.
             telemetry.addData("Status", "Run Time: " + runtime.toString());
@@ -83,9 +93,6 @@ public class BenchLinearOpMode extends LinearOpMode {
             telemetry.addData("Servo4arm position", servo4arm.getPosition());
             telemetry.addData("Distance (cm):", distance);
             telemetry.update();
-
-
-
 
         }
     }
