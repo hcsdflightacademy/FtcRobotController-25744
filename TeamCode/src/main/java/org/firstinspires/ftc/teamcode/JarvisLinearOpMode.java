@@ -51,7 +51,7 @@ public class JarvisLinearOpMode extends LinearOpMode {
         while (opModeIsActive()) {
             frontmotorLeft.setPower(gamepad1.left_stick_y);
             rearmotorLeft.setPower(gamepad1.left_stick_y);
-            frontmotorRight.setPower(gamepad1.right_stick_y);
+            frontmotorRight.setPower(-gamepad1.right_stick_y);
             rearmotorRight.setPower(gamepad1.right_stick_y);
 
             // Show the elapsed game time.
