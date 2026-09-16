@@ -31,6 +31,7 @@ public class BenchLinearOpMode extends LinearOpMode {
     private DigitalChannel button1;
     private Rev2mDistanceSensor distanceSensor;
     private double distance;
+    private DigitalChannel swiftMagneticSensor;
 
     private DigitalChannel magnetism;
     @Override
@@ -43,6 +44,7 @@ public class BenchLinearOpMode extends LinearOpMode {
         distanceSensor = hardwareMap.get(Rev2mDistanceSensor.class, "distance");
         magnetism = hardwareMap.get(DigitalChannel.class, "magnetism");
         telemetry.addData("Status", "Initialized");
+        swiftMagneticSensor = hardwareMap.get(DigitalChannel.class, "Swift Magnetic");
         telemetry.update();
 
         // Wait for the game to start (driver presses START)
@@ -74,11 +76,20 @@ public class BenchLinearOpMode extends LinearOpMode {
 //                benchMotor.setPower(0);
 //            }
 
-            if (magnetism.getState()){
+            //if (magnetism.getState()){
+            //    telemetry.addData("magnetism", "magnet not found");
+            //    benchMotor.setPower(tgtPower);
+            //} else if(tgtPower < 0.0) {
+            //    telemetry.addData("magnetism", "magnet found");
+            //    benchMotor.setPower(0);
+            //}else if (tgtPower > 0.0){
+            //    benchMotor.setPower(tgtPower);
+            //}
+            if (swiftMagneticSensor.getState()){
                 telemetry.addData("magnetism", "magnet not found");
                 benchMotor.setPower(tgtPower);
-            } else if(tgtPower < 0.0) {
-                telemetry.addData("magnetism", "magnet found");
+            }else if(tgtPower <0.0){
+                telemetry.addData("magnetism","magnet found");
                 benchMotor.setPower(0);
             }else if (tgtPower > 0.0){
                 benchMotor.setPower(tgtPower);
