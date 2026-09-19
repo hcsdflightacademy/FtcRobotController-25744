@@ -20,9 +20,9 @@ import com.qualcomm.robotcore.util.ElapsedTime;
  * Remove or comment out the @Disabled line to add this OpMode to the Driver Station OpMode list
  */
 
-@TeleOp(name="Jarvis Drive Linear OpMode", group="Linear OpMode")
+@TeleOp(name="Jarvis Tank Drive Linear OpMode", group="Linear OpMode")
 //@Disabled
-public class JarvisLinearOpMode extends LinearOpMode {
+public class JarvisTankLinearOpMode extends LinearOpMode {
 
     // Declare OpMode members.
     private ElapsedTime runtime = new ElapsedTime();
@@ -38,7 +38,8 @@ public class JarvisLinearOpMode extends LinearOpMode {
         rearmotorLeft = hardwareMap.get(DcMotor.class, "back left");
         rearmotorRight = hardwareMap.get(DcMotor.class, "back right");
 
-
+        frontmotorRight.setDirection(DcMotor.Direction.REVERSE);
+        rearmotorRight.setDirection(DcMotor.Direction.REVERSE);
 
         telemetry.addData("Status", "Initialized");
         telemetry.update();
@@ -51,7 +52,7 @@ public class JarvisLinearOpMode extends LinearOpMode {
         while (opModeIsActive()) {
             frontmotorLeft.setPower(gamepad1.left_stick_y);
             rearmotorLeft.setPower(gamepad1.left_stick_y);
-            frontmotorRight.setPower(-gamepad1.right_stick_y);
+            frontmotorRight.setPower(gamepad1.right_stick_y);
             rearmotorRight.setPower(gamepad1.right_stick_y);
 
             // Show the elapsed game time.
