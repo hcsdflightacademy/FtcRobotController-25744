@@ -61,7 +61,7 @@ import org.firstinspires.ftc.robotcore.external.navigation.Pose3D;
  *
  */
 @TeleOp(name = "Jarvis: Field Relative Mecanum Drive", group = "Robot")
-@Disabled
+//@Disabled
 public class JarvisTeleopMecanumFieldRelativeDrive extends OpMode {
     // This declares the four motors needed
     DcMotor frontLeftDrive;
@@ -104,9 +104,9 @@ public class JarvisTeleopMecanumFieldRelativeDrive extends OpMode {
         imu = hardwareMap.get(IMU.class, "imu");
         // This needs to be changed to match the orientation on your robot
         RevHubOrientationOnRobot.LogoFacingDirection logoDirection =
-                RevHubOrientationOnRobot.LogoFacingDirection.RIGHT;
+                RevHubOrientationOnRobot.LogoFacingDirection.BACKWARD;
         RevHubOrientationOnRobot.UsbFacingDirection usbDirection =
-                RevHubOrientationOnRobot.UsbFacingDirection.FORWARD;
+                RevHubOrientationOnRobot.UsbFacingDirection.UP;
 
         RevHubOrientationOnRobot orientationOnRobot = new
                 RevHubOrientationOnRobot(logoDirection, usbDirection);
@@ -135,11 +135,11 @@ public class JarvisTeleopMecanumFieldRelativeDrive extends OpMode {
         }
         // If you press the left bumper, you get a drive from the point of view of the robot
         // (much like driving an RC vehicle)
-        //if (gamepad1.left_bumper) {
+        if (gamepad1.left_bumper) {
             drive(-gamepad1.left_stick_y, gamepad1.left_stick_x, gamepad1.right_stick_x);
-        //} else {
-        //    driveFieldRelative(-gamepad1.left_stick_y, gamepad1.left_stick_x, gamepad1.right_stick_x);
-        //}
+        } else {
+            driveFieldRelative(-gamepad1.left_stick_y, gamepad1.left_stick_x, gamepad1.right_stick_x);
+        }
         if (gamepad1.right_bumper) {
             rightIntakeServo.setPosition(1.0);
             leftIntakeServo.setPosition(-1.0);
@@ -207,10 +207,10 @@ public class JarvisTeleopMecanumFieldRelativeDrive extends OpMode {
         backLeftDrive.setPower(maxSpeed * (backLeftPower / maxPower));
         backRightDrive.setPower(maxSpeed * (backRightPower / maxPower));
 
-        telemetry.addData("front left power", frontLeftDrive.getPower());
-        telemetry.addData("front right power", frontRightDrive.getPower());
-        telemetry.addData("back left power", backLeftDrive.getPower());
-        telemetry.addData("back right power", backRightDrive.getPower());
+        //telemetry.addData("front left power", frontLeftDrive.getPower());
+        //telemetry.addData("front right power", frontRightDrive.getPower());
+        //telemetry.addData("back left power", backLeftDrive.getPower());
+        //telemetry.addData("back right power", backRightDrive.getPower());
     }
 
     public void configurePinpoint(){
@@ -223,7 +223,7 @@ public class JarvisTeleopMecanumFieldRelativeDrive extends OpMode {
          *  The Y pod offset refers to how far forwards from the tracking point the Y (strafe) odometry pod is.
          *  Forward of center is a positive number, backwards is a negative number.
          */
-        pinpoint.setOffsets(-84.0, -168.0, DistanceUnit.MM); //these are tuned for 3110-0002-0001 Product Insight #1
+        pinpoint.setOffsets(40.0, 0.0, DistanceUnit.MM); //these are tuned for 3110-0002-0001 Product Insight #1
 
         /*
          * Set the kind of pods used by your robot. If you're using goBILDA odometry pods, select either
@@ -239,8 +239,9 @@ public class JarvisTeleopMecanumFieldRelativeDrive extends OpMode {
          * increase when you move the robot forward. And the Y (strafe) pod should increase when
          * you move the robot to the left.
          */
-        pinpoint.setEncoderDirections(GoBildaPinpointDriver.EncoderDirection.FORWARD,
-                GoBildaPinpointDriver.EncoderDirection.FORWARD);
+        pinpoint.setEncoderDirections(GoBildaPinpointDriver.EncoderDirection.REVERSED,
+                GoBildaPinpointDriver.EncoderDirection.REVERSED
+        );
 
         /*
          * Before running the robot, recalibrate the IMU. This needs to happen when the robot is stationary
