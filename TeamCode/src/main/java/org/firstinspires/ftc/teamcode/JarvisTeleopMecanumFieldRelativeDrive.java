@@ -30,6 +30,7 @@ package org.firstinspires.ftc.teamcode;
 
 import com.qualcomm.hardware.gobilda.GoBildaPinpointDriver;
 import com.qualcomm.hardware.limelightvision.LLResult;
+import com.qualcomm.hardware.limelightvision.LLResultTypes;
 import com.qualcomm.hardware.limelightvision.LLStatus;
 import com.qualcomm.hardware.limelightvision.Limelight3A;
 import com.qualcomm.hardware.rev.RevHubOrientationOnRobot;
@@ -45,6 +46,8 @@ import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
 import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
 import org.firstinspires.ftc.robotcore.external.navigation.Pose2D;
 import org.firstinspires.ftc.robotcore.external.navigation.Pose3D;
+
+import java.util.List;
 
 /*
  * This OpMode illustrates how to program your robot to drive field relative.  This means
@@ -116,6 +119,12 @@ public class JarvisTeleopMecanumFieldRelativeDrive extends OpMode {
         configurePinpoint();
         // Set the location of the robot - this should be the place you are starting the robot from
         pinpoint.setPosition(new Pose2D(DistanceUnit.INCH, 0, 0, AngleUnit.DEGREES, 0));
+
+        //telemetry.setMsTransmissionInterval(11);
+        limelight.pipelineSwitch(0);
+        //Starts polling for data.  If you neglect to call start(), getLatestResult() will return null.
+        limelight.start();
+        telemetry.update();
     }
 
 
@@ -123,9 +132,9 @@ public class JarvisTeleopMecanumFieldRelativeDrive extends OpMode {
     public void loop() {
         telemetry.addLine("Press A to reset Yaw");
         telemetry.addLine("Hold left bumper to drive in robot relative");
-        telemetry.addLine("The left joystick sets the robot direction");
-        telemetry.addLine("Moving the right joystick left and right turns the robot");
-        telemetry.addLine("Push your robot around to see it track");
+        //telemetry.addLine("The left joystick sets the robot direction");
+        //telemetry.addLine("Moving the right joystick left and right turns the robot");
+        //telemetry.addLine("Push your robot around to see it track");
         telemetry.addLine("Press B to reset the position");
 
         // If you press the A button, then you reset the Yaw to be zero from the way
@@ -159,6 +168,37 @@ public class JarvisTeleopMecanumFieldRelativeDrive extends OpMode {
         telemetry.addData("X coordinate (IN)", pose2D.getX(DistanceUnit.INCH));
         telemetry.addData("Y coordinate (IN)", pose2D.getY(DistanceUnit.INCH));
         telemetry.addData("Heading angle (DEGREES)", pose2D.getHeading(AngleUnit.DEGREES));
+
+        LLStatus status = limelight.getStatus();
+        telemetry.addData("Name", "%s",
+                status.getName());
+        telemetry.addData("LL", "Temp: %.1fC, CPU: %.1f%%, FPS: %d",
+                status.getTemp(), status.getCpu(),(int)status.getFps());
+        telemetry.addData("Pipeline", "Index: %d, Type: %s",
+                status.getPipelineIndex(), status.getPipelineType());
+
+        LLResult result = limelight.getLatestResult();
+        if (result.isValid()) {
+            // Access general information
+            double captureLatency = result.getCaptureLatency();
+            double targetingLatency = result.getTargetingLatency();
+            double parseLatency = result.getParseLatency();
+            telemetry.addData("LL Latency", captureLatency + targetingLatency);
+            telemetry.addData("Parse Latency", parseLatency);
+            telemetry.addData("tx", result.getTx());
+            telemetry.addData("txnc", result.getTxNC());
+            telemetry.addData("ty", result.getTy());
+            telemetry.addData("tync", result.getTyNC());
+
+            // Access fiducial results
+            List<LLResultTypes.FiducialResult> fiducialResults = result.getFiducialResults();
+            for (LLResultTypes.FiducialResult fr : fiducialResults) {
+                telemetry.addData("Fiducial", "ID: %d, Family: %s, X: %.2f, Y: %.2f", fr.getFiducialId(), fr.getFamily(), fr.getTargetXDegrees(), fr.getTargetYDegrees());
+            }
+        } else {
+                telemetry.addData("Limelight", "No data available");
+        }
+        telemetry.update();
     }
 
     // This routine drives the robot field relative
