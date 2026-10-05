@@ -7,7 +7,6 @@ package org.firstinspires.ftc.teamcode.MaristBaseRobot2026;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.DcMotor;
-import com.qualcomm.robotcore.util.Range;
 
 
 @TeleOp(name="MaristBot2026: Quad Training 2026", group="Training")

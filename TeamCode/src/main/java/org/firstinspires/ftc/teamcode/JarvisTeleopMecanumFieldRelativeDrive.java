@@ -74,6 +74,8 @@ public class JarvisTeleopMecanumFieldRelativeDrive extends OpMode {
     Servo rightIntakeServo;
     Servo leftIntakeServo;
     DcMotor intakeMotor;
+    DcMotor shooterMotor;
+    DcMotor kickerMotor;
     // This declares the IMU needed to get the current direction the robot is facing
     IMU imu;
     GoBildaPinpointDriver pinpoint;
@@ -89,6 +91,8 @@ public class JarvisTeleopMecanumFieldRelativeDrive extends OpMode {
         rightIntakeServo = hardwareMap. get(Servo.class,"right intake");
         leftIntakeServo = hardwareMap.get(Servo.class,"left intake");
         intakeMotor = hardwareMap.get(DcMotor.class,"intake motor");
+        shooterMotor = hardwareMap.get(DcMotor.class, "shooter motor");
+        kickerMotor = hardwareMap.get(DcMotor.class, "kicker motor");
         // Get a reference to the sensor
         pinpoint = hardwareMap.get(GoBildaPinpointDriver.class, "pinpoint");
         limelight = hardwareMap.get(Limelight3A.class, "limelight");
@@ -171,6 +175,16 @@ public class JarvisTeleopMecanumFieldRelativeDrive extends OpMode {
         }else{
             intakeMotor.setPower(0.0);
         }
+
+        if(gamepad1.left_trigger_pressed){
+            shooterMotor.setPower(-.4);
+            kickerMotor.setPower(-.25);
+        }else {
+            shooterMotor.setPower(0.0);
+            kickerMotor.setPower(0.0);
+        }
+
+
 
 
         pinpoint.update();

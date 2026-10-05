@@ -10,10 +10,6 @@ import com.qualcomm.robotcore.util.Range;
 import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
 import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
 import org.firstinspires.ftc.robotcore.external.navigation.Pose2D;
-import org.firstinspires.ftc.robotcore.external.navigation.UnnormalizedAngleUnit;
-
-
-import java.util.Locale;
 
 
 @Autonomous(name="Auto_Test_2026_ODO", group="Test Autos")
