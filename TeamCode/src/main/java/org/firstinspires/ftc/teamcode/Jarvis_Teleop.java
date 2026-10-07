@@ -65,31 +65,32 @@ public class Jarvis_Teleop extends OpMode {
         } else {
             jarvis.driveFieldRelative(-gamepad1.left_stick_y, gamepad1.left_stick_x, gamepad1.right_stick_x);
         }
-        if (gamepad1.right_bumper) {
-            jarvis.rightIntakeServo.setPosition(1.0);
-            jarvis.leftIntakeServo.setPosition(-1.0);
-        }else {
-            jarvis.rightIntakeServo.setPosition(0.5);
-            jarvis.leftIntakeServo.setPosition(0.5);
-        }
 
         if(gamepad1.b){
             // You could use readings from April Tags here to give a new known position to the pinpoint
             jarvis.pinpoint.setPosition(new Pose2D(DistanceUnit.INCH, 0, 0, AngleUnit.DEGREES, 0));
         }
 
-        if(gamepad1.dpad_up){
-            jarvis.intakeMotor.setPower(1.0);
-        }else if (gamepad1.dpad_down){
+         if (gamepad1.left_trigger_pressed){
             jarvis.intakeMotor.setPower(-1.0);
         }else{
+             jarvis.intakeMotor.setPower(0.0);
+         }
+
+        if (gamepad1.left_bumper) {
+            jarvis.intakeMotor.setPower(1.0);
+        }else {
             jarvis.intakeMotor.setPower(0.0);
         }
 
-        if(gamepad1.left_trigger_pressed){
-            jarvis.shooterMotor.setPower(-.4);
-            jarvis.kickerMotor.setPower(-.25);
-        }else {
+        if(!gamepad1.left_bumper) {
+            jarvis.intakeMotor.setPower(0.0);
+        }
+
+        if(gamepad1.right_trigger_pressed) {
+            jarvis.shooterMotor.setPower(0.5);
+            jarvis.kickerMotor.setPower(-0.5);
+        }else{
             jarvis.shooterMotor.setPower(0.0);
             jarvis.kickerMotor.setPower(0.0);
         }
