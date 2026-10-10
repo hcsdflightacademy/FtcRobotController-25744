@@ -5,6 +5,7 @@ import com.qualcomm.hardware.limelightvision.LLResultTypes;
 import com.qualcomm.hardware.limelightvision.LLStatus;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
+import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
 import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
@@ -60,7 +61,7 @@ public class Jarvis_Teleop extends OpMode {
         }
         // If you press the left bumper, you get a drive from the point of view of the robot
         // (much like driving an RC vehicle)
-        if (gamepad1.left_bumper) {
+        if (gamepad1.right_bumper) {
             jarvis.drive(-gamepad1.left_stick_y, gamepad1.left_stick_x, gamepad1.right_stick_x);
         } else {
             jarvis.driveFieldRelative(-gamepad1.left_stick_y, gamepad1.left_stick_x, gamepad1.right_stick_x);
@@ -68,32 +69,28 @@ public class Jarvis_Teleop extends OpMode {
 
         if(gamepad1.b){
             // You could use readings from April Tags here to give a new known position to the pinpoint
-            jarvis.pinpoint.setPosition(new Pose2D(DistanceUnit.INCH, 0, 0, AngleUnit.DEGREES, 0));
+            jarvis.resetPosition();
         }
 
          if (gamepad1.left_trigger_pressed){
-            jarvis.intakeMotor.setPower(-1.0);
+            jarvis.runIntake();
         }else{
-             jarvis.intakeMotor.setPower(0.0);
+             jarvis.stopIntake();
          }
 
         if (gamepad1.left_bumper) {
-            jarvis.intakeMotor.setPower(1.0);
+            jarvis.runIntakeBackwards();
         }else {
-            jarvis.intakeMotor.setPower(0.0);
+            jarvis.stopIntake();;
         }
 
-        if(!gamepad1.left_bumper) {
-            jarvis.intakeMotor.setPower(0.0);
-        }
 
         if(gamepad1.right_trigger_pressed) {
-            jarvis.shooterMotor.setPower(0.5);
-            jarvis.kickerMotor.setPower(-0.5);
-        }else{
-            jarvis.shooterMotor.setPower(0.0);
-            jarvis.kickerMotor.setPower(0.0);
+            jarvis.shootTheBall();
+        }else {
+            jarvis.stopShooting();
         }
+
 
 
 
@@ -134,7 +131,7 @@ public class Jarvis_Teleop extends OpMode {
         } else {
             telemetry.addData("Limelight", "No data available");
         }
-        telemetry.update();
+
         //  Add any telemetry with instructions specific to this OpMode
 
 

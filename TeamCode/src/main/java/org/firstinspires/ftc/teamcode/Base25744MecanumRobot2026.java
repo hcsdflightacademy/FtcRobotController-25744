@@ -14,6 +14,7 @@ import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 import com.qualcomm.robotcore.hardware.IMU;
 import com.qualcomm.robotcore.hardware.Servo;
+import com.qualcomm.robotcore.util.Range;
 
 import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
 import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
@@ -21,7 +22,7 @@ import org.firstinspires.ftc.robotcore.external.navigation.Pose2D;
 
 public class Base25744MecanumRobot2026 {
     // Add all public variable, motors, servos, sensors, etc below
-    DcMotor frontLeftDrive;
+    private DcMotor frontLeftDrive;
     DcMotor frontRightDrive;
     DcMotor backLeftDrive;
     DcMotor backRightDrive;
@@ -75,9 +76,9 @@ public class Base25744MecanumRobot2026 {
         imu = hwMap.get(IMU.class, "imu");
         // This needs to be changed to match the orientation on your robot
         RevHubOrientationOnRobot.LogoFacingDirection logoDirection =
-                RevHubOrientationOnRobot.LogoFacingDirection.BACKWARD;
+                RevHubOrientationOnRobot.LogoFacingDirection.UP;
         RevHubOrientationOnRobot.UsbFacingDirection usbDirection =
-                RevHubOrientationOnRobot.UsbFacingDirection.UP;
+                RevHubOrientationOnRobot.UsbFacingDirection.FORWARD;
 
         RevHubOrientationOnRobot orientationOnRobot = new
                 RevHubOrientationOnRobot(logoDirection, usbDirection);
@@ -149,6 +150,33 @@ public class Base25744MecanumRobot2026 {
 
     }
 
+    public void runIntake(){
+        intakeMotor.setPower(-1.0);
+    }
+
+    public void runIntakeBackwards(){
+        intakeMotor.setPower(1.0);
+    }
+
+    public void stopIntake(){
+        intakeMotor.setPower(0.0);
+    }
+
+    public void shootTheBall() {
+        shooterMotor.setPower(0.38);
+        kickerMotor.setPower(-0.5);
+    }
+
+    public void stopShooting() {
+        shooterMotor.setPower(0.0);
+        kickerMotor.setPower(0.0);
+    }
+
+    public void resetPosition() {
+        pinpoint.setPosition(new Pose2D(DistanceUnit.INCH, 0, 0, AngleUnit.DEGREES, 0));
+    }
+
+
     //  Add methods to operate all servos and get data from any sensors
     public void configurePinpoint(){
         /*
@@ -160,7 +188,7 @@ public class Base25744MecanumRobot2026 {
          *  The Y pod offset refers to how far forwards from the tracking point the Y (strafe) odometry pod is.
          *  Forward of center is a positive number, backwards is a negative number.
          */
-        pinpoint.setOffsets(40.0, 0.0, DistanceUnit.MM); //these are tuned for 3110-0002-0001 Product Insight #1
+        pinpoint.setOffsets(85.0, -140.0, DistanceUnit.MM); //these are tuned for 3110-0002-0001 Product Insight #1
 
         /*
          * Set the kind of pods used by your robot. If you're using goBILDA odometry pods, select either
@@ -176,8 +204,8 @@ public class Base25744MecanumRobot2026 {
          * increase when you move the robot forward. And the Y (strafe) pod should increase when
          * you move the robot to the left.
          */
-        pinpoint.setEncoderDirections(GoBildaPinpointDriver.EncoderDirection.REVERSED,
-                GoBildaPinpointDriver.EncoderDirection.REVERSED
+        pinpoint.setEncoderDirections(GoBildaPinpointDriver.EncoderDirection.FORWARD,
+                GoBildaPinpointDriver.EncoderDirection.FORWARD
         );
 
         /*
@@ -190,4 +218,5 @@ public class Base25744MecanumRobot2026 {
          */
         pinpoint.resetPosAndIMU();
     }
+
 }
