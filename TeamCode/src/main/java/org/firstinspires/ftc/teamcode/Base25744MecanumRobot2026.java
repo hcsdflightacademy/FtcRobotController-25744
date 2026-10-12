@@ -163,8 +163,8 @@ public class Base25744MecanumRobot2026 {
     }
 
     public void shootTheBall() {
-        shooterMotor.setPower(0.38);
-        kickerMotor.setPower(-0.5);
+        shooterMotor.setPower(-1.0);
+        kickerMotor.setPower(0.5);
     }
 
     public void stopShooting() {
