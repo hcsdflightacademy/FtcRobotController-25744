@@ -46,22 +46,39 @@ public class Jarvis_Auto_1 extends LinearOpMode {
             // Remember you can't use gamepads during Auto...
             telemetry.addData("current Pose", jarvis.pinpoint.getPosition());
 
-            Pose2D targetPos1 = new Pose2D(DistanceUnit.INCH,76 , 0, AngleUnit.DEGREES, 0);
-            Pose2D targetPos2 = new Pose2D(DistanceUnit.INCH, 76, 20, AngleUnit.DEGREES, 0);
-            Pose2D targetPos3 = new Pose2D(DistanceUnit.INCH, 76, 20, AngleUnit.DEGREES, 180);
+            jarvis.imu.resetYaw();
+
+            Pose2D targetPos1 = new Pose2D(DistanceUnit.INCH,52 , 0, AngleUnit.DEGREES, 0);
+            Pose2D targetPos2 = new Pose2D(DistanceUnit.INCH, 52, 0, AngleUnit.DEGREES, -90);
+            Pose2D targetPos3 = new Pose2D(DistanceUnit.INCH, 10, 0, AngleUnit.DEGREES, -90);
+            Pose2D targetPos4 = new Pose2D(DistanceUnit.INCH, 10, 79, AngleUnit.DEGREES, -90);
+
             goToPose(targetPos1, 5, 20);
             telemetry.addData("Position 1 Reached","Hopefully");
             telemetry.update();
+            goToPose(targetPos2, 5, 20);
+        telemetry.addData("Position 1 Reached","Hopefully");
+        telemetry.update();
+
+
 
             delay(0.5);
-            goToPose(targetPos2, 5, 20);
-            telemetry.addData("Position 2 Reached","Hopefully");
-            telemetry.update();
+        goToPose(targetPos2, 5, 20);
+        telemetry.addData("Position 2 Reached","Hopefully");
+        telemetry.update();
+            jarvis.shootTheBall();
+            delay(10);
+            jarvis.stopShooting();
 
             delay(.5);
             goToPose(targetPos3, 5, 20);
             telemetry.addData("Position 3 Reached","Hopefully");
             telemetry.update();
+
+        goToPose(targetPos4, 5, 20);
+        telemetry.addData("Position 1 Reached","Hopefully");
+        telemetry.update();
+
 
     }
 

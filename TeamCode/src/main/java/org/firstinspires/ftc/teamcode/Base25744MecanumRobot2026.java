@@ -11,9 +11,12 @@ import com.qualcomm.hardware.gobilda.GoBildaPinpointDriver;
 import com.qualcomm.hardware.limelightvision.Limelight3A;
 import com.qualcomm.hardware.rev.RevHubOrientationOnRobot;
 import com.qualcomm.robotcore.hardware.DcMotor;
+import com.qualcomm.robotcore.hardware.DcMotorEx;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 import com.qualcomm.robotcore.hardware.IMU;
+import com.qualcomm.robotcore.hardware.PwmControl;
 import com.qualcomm.robotcore.hardware.Servo;
+import com.qualcomm.robotcore.hardware.ServoImplEx;
 import com.qualcomm.robotcore.util.Range;
 
 import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
@@ -26,11 +29,13 @@ public class Base25744MecanumRobot2026 {
     DcMotor frontRightDrive;
     DcMotor backLeftDrive;
     DcMotor backRightDrive;
-    Servo rightIntakeServo;
-    Servo leftIntakeServo;
-    DcMotor intakeMotor;
-    DcMotor shooterMotor;
-    DcMotor kickerMotor;
+    DcMotor Agitator;
+    Servo Feeder;
+    ServoImplEx rightFlowerServo;
+    ServoImplEx leftFlowerServo;;
+    DcMotorEx intakeMotor;
+    DcMotorEx shooterMotor;
+    DcMotorEx kickerMotor;
     // This declares the IMU needed to get the current direction the robot is facing
     IMU imu;
     GoBildaPinpointDriver pinpoint;
@@ -51,14 +56,22 @@ public class Base25744MecanumRobot2026 {
         frontRightDrive = hwMap.get(DcMotor.class, "front right");
         backLeftDrive = hwMap.get(DcMotor.class, "back left");
         backRightDrive = hwMap.get(DcMotor.class, "back right");
-        rightIntakeServo = hwMap. get(Servo.class,"right intake");
-        leftIntakeServo = hwMap.get(Servo.class,"left intake");
-        intakeMotor = hwMap.get(DcMotor.class,"intake motor");
-        shooterMotor = hwMap.get(DcMotor.class, "shooter motor");
-        kickerMotor = hwMap.get(DcMotor.class, "kicker motor");
+        rightFlowerServo = hwMap. get(ServoImplEx.class,"right flower servo");
+        leftFlowerServo = hwMap.get(ServoImplEx.class,"left flower servo");
+        Feeder = hwMap.get(Servo.class, "Feeder");
+        Agitator = hwMap.get(DcMotor.class, "Agitator");
+        intakeMotor = hwMap.get(DcMotorEx.class,"intake motor");
+        shooterMotor = hwMap.get(DcMotorEx.class, "shooter motor");
+        shooterMotor.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+        kickerMotor = hwMap.get(DcMotorEx.class, "kicker motor");
+        kickerMotor.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
         // Get a reference to the sensor
         pinpoint = hwMap.get(GoBildaPinpointDriver.class, "pinpoint");
         limelight = hwMap.get(Limelight3A.class, "limelight");
+
+        //Widens the range of motion for the servos, gets the full angle
+        leftFlowerServo.setPwmRange(new PwmControl.PwmRange(500, 2500));
+        rightFlowerServo.setPwmRange(new PwmControl.PwmRange(500,2500));
 
         // We set the left motors in reverse which is needed for drive trains where the left
         // motors are opposite to the right ones.
@@ -92,6 +105,7 @@ public class Base25744MecanumRobot2026 {
         limelight.pipelineSwitch(0);
         //Starts polling for data.  If you neglect to call start(), getLatestResult() will return null.
         limelight.start();
+
 
     }
 
@@ -163,8 +177,10 @@ public class Base25744MecanumRobot2026 {
     }
 
     public void shootTheBall() {
-        shooterMotor.setPower(-1.0);
-        kickerMotor.setPower(0.5);
+        //shooterMotor.setPower(-1.0);
+        shooterMotor.setVelocity(1200);
+        kickerMotor.setVelocity(-700);
+        //kickerMotor.setPower(0.001);
     }
 
     public void stopShooting() {
@@ -175,6 +191,30 @@ public class Base25744MecanumRobot2026 {
     public void resetPosition() {
         pinpoint.setPosition(new Pose2D(DistanceUnit.INCH, 0, 0, AngleUnit.DEGREES, 0));
     }
+    public void pushTheBall() {
+        Feeder.setPosition(1.0);
+        Agitator.setPower(1.0);
+        intakeMotor.setPower(-0.3);
+ }
+    public void stopPushing() {
+        Feeder.setPosition(0.5);
+        Agitator.setPower(0.0);
+        intakeMotor.setPower(0.0);
+ }
+
+    public void raiseFlowerArms(){
+        leftFlowerServo.setPosition(0.475); // larger values raise left servo
+        //rightservo a bit too low; decrease position by a hair
+        rightFlowerServo.setPosition(0.33); // smaller values raise right servo
+    }
+
+    public void lowerFlowerArms(){
+        //lower the servos by a bit more; lower left position, increase right position
+        leftFlowerServo.setPosition(0.20); // smaller values lowers left servo
+        rightFlowerServo.setPosition(0.60); // larger values lowers right servo
+    }
+
+
 
 
     //  Add methods to operate all servos and get data from any sensors

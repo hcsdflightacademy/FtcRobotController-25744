@@ -30,6 +30,8 @@ public class Jarvis_Teleop extends OpMode {
         // Tell the driver that initialization is complete.
         telemetry.addData("Status", "Initialized");
         telemetry.update();
+
+
     }
 
 
@@ -56,7 +58,7 @@ public class Jarvis_Teleop extends OpMode {
 
         // If you press the A button, then you reset the Yaw to be zero from the way
         // the robot is currently pointing
-        if (gamepad1.a) {
+        if (gamepad1.start) {
             jarvis.imu.resetYaw();
         }
         // If you press the left bumper, you get a drive from the point of view of the robot
@@ -72,24 +74,49 @@ public class Jarvis_Teleop extends OpMode {
             jarvis.resetPosition();
         }
 
-         if (gamepad1.left_trigger_pressed){
+        if (gamepad1.y) {
+            jarvis.raiseFlowerArms();
+        }
+
+        if (gamepad1.a) {
+            jarvis.lowerFlowerArms();
+        }
+
+         if (gamepad2.a){
             jarvis.runIntake();
+            telemetry.addData("Intake velocity", jarvis.intakeMotor.getVelocity());
         }else{
              jarvis.stopIntake();
          }
 
-        if (gamepad1.left_bumper) {
+        if (gamepad2.y) {
             jarvis.runIntakeBackwards();
+            telemetry.addData("Intake velocity", jarvis.intakeMotor.getVelocity());
         }else {
-            jarvis.stopIntake();;
+            jarvis.stopIntake();
         }
 
 
-        if(gamepad1.right_trigger_pressed) {
+        if(gamepad2.right_trigger_pressed) {
             jarvis.shootTheBall();
+            telemetry.addData("Shooter Velocity: ", jarvis.shooterMotor.getVelocity());
+            telemetry.addData("Kicker Velocity: ", jarvis.kickerMotor.getVelocity());
         }else {
             jarvis.stopShooting();
+            telemetry.addData("Shooter Velocity: ", jarvis.shooterMotor.getVelocity());
+            telemetry.addData("Kicker Velocity: ", jarvis.kickerMotor.getVelocity());
         }
+
+
+        if (gamepad2.left_trigger_pressed) {
+            jarvis.pushTheBall();
+
+        }else {
+            jarvis.stopPushing();
+        }
+
+
+
 
 
 
@@ -103,12 +130,12 @@ public class Jarvis_Teleop extends OpMode {
         telemetry.addData("Heading angle (DEGREES)", pose2D.getHeading(AngleUnit.DEGREES));
 
         LLStatus status = jarvis.limelight.getStatus();
-        telemetry.addData("Name", "%s",
-                status.getName());
-        telemetry.addData("LL", "Temp: %.1fC, CPU: %.1f%%, FPS: %d",
-                status.getTemp(), status.getCpu(),(int)status.getFps());
-        telemetry.addData("Pipeline", "Index: %d, Type: %s",
-                status.getPipelineIndex(), status.getPipelineType());
+//        telemetry.addData("Name", "%s",
+//                status.getName());
+//        telemetry.addData("LL", "Temp: %.1fC, CPU: %.1f%%, FPS: %d",
+//                status.getTemp(), status.getCpu(),(int)status.getFps());
+//        telemetry.addData("Pipeline", "Index: %d, Type: %s",
+//                status.getPipelineIndex(), status.getPipelineType());
 
         LLResult result = jarvis.limelight.getLatestResult();
         if (result.isValid()) {
@@ -116,12 +143,12 @@ public class Jarvis_Teleop extends OpMode {
             double captureLatency = result.getCaptureLatency();
             double targetingLatency = result.getTargetingLatency();
             double parseLatency = result.getParseLatency();
-            telemetry.addData("LL Latency", captureLatency + targetingLatency);
-            telemetry.addData("Parse Latency", parseLatency);
+            //telemetry.addData("LL Latency", captureLatency + targetingLatency);
+            //telemetry.addData("Parse Latency", parseLatency);
             telemetry.addData("tx", result.getTx());
-            telemetry.addData("txnc", result.getTxNC());
+            //telemetry.addData("txnc", result.getTxNC());
             telemetry.addData("ty", result.getTy());
-            telemetry.addData("tync", result.getTyNC());
+            //telemetry.addData("tync", result.getTyNC());
 
             // Access fiducial results
             List<LLResultTypes.FiducialResult> fiducialResults = result.getFiducialResults();
